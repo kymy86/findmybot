@@ -19,7 +19,7 @@ class UrlsGetter():
     """
     def __init__(self):
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-        self._url = os.environ['WHM_URL']+"/json-api/listaccts?api.version=1&want=domain"
+        self._url = os.environ['WHM_URL']+"/json-api/listaccts?api.version=1&want=domain,suspended"
         self._user = os.environ['WHM_USER']
         self._auth = os.environ['WHM_TOKEN']
 
@@ -46,7 +46,8 @@ class UrlsGetter():
         domainsj = json.loads(domains)
         cpDomains = []
         for domain in domainsj['data']['acct']:
-            cpDomains.append(domain['domain'])
+            if domain['suspended'] == 0:
+                cpDomains.append(domain['domain'])
         return cpDomains
 
 

@@ -1,3 +1,5 @@
-WHM_URL = http://127.0.0.0.1
-WHM_USER = test_root
-WHM_TOKEN = my_very_long_long_token
+WHM_URL=http://127.0.0.0.1
+WHM_USER=test_root
+WHM_TOKEN=my_very_long_long_token
+FROM_ADDR=website@beprime.it
+TO_ADDR=t1@test.com,t2@test.com,t3@test.com
