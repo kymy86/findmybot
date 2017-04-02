@@ -1,6 +1,7 @@
 #pylint: disable=C0103
 
 import os
+import sys
 from lxml import html
 import requests
 import boto3
@@ -25,6 +26,9 @@ for domain in domains:
                 domains_wn_meta.append(domain)
     except Exception:
         pass
+
+if len(domains_wn_meta) == 0:
+    sys.exit(1)
 
 message = '''
 The following domains are setup on the staging environment without the meta tag
