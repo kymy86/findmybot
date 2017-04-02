@@ -13,53 +13,53 @@ ugetter = UrlsGetter()
 domains = ugetter.getDomainList()
 domains_wn_meta = []
 
-for domain in domains:
-    try:
-        page = requests.get('http://'+domain)
-        tree = html.fromstring(page.content)
-        h1 = tree.xpath('//title/text()')
-        title = h1[0]
-        status_code = page.status_code
-        meta = tree.xpath('//meta[@name="robots"]/@content')
-        if status_code == 200 and title != 'Index of /':
-            if len(meta) == 0:
-                domains_wn_meta.append(domain)
-    except Exception:
-        pass
 
-if len(domains_wn_meta) == 0:
-    sys.exit(1)
+def lambda_handler(event, context):
+    for domain in domains:
+        try:
+            page = requests.get('http://'+domain)
+            tree = html.fromstring(page.content)
+            h1 = tree.xpath('//title/text()')
+            title = h1[0]
+            status_code = page.status_code
+            meta = tree.xpath('//meta[@name="robots"]/@content')
+            if status_code == 200 and title != 'Index of /':
+                if len(meta) == 0:
+                    domains_wn_meta.append(domain)
+        except Exception:
+            pass
 
-message = '''
-The following domains are setup on the staging environment without the meta tag
-robots noindex/nofollow.<br />
-<b>Action is required!</b><br /><br />
-<ul>
-'''
+    if len(domains_wn_meta) == 0:
+        sys.exit(1)
 
-for domain in domains_wn_meta:
-    message += "<li>"+domain+"</li>"
-message += "</ul>"
+    message = '''
+    The following domains are setup on the staging environment without the meta tag
+    robots noindex/nofollow.<br />
+    <b>Action is required!</b><br /><br />
+    <ul>
+    '''
 
-email_to = os.environ['TO_ADDR']
-response = client.send_email(
-    Source=os.environ['FROM_ADDR'],
-    Destination={
-        'ToAddresses':email_to.split(",")
-    },
-    Message={
-        'Subject': {
-            'Data': "Meta Robots: weekly status",
+    for domain in domains_wn_meta:
+        message += "<li>"+domain+"</li>"
+    message += "</ul>"
+
+    email_to = os.environ['TO_ADDR']
+    response = client.send_email(
+        Source=os.environ['FROM_ADDR'],
+        Destination={
+            'ToAddresses':email_to.split(",")
         },
-        'Body': {
-            'Html': {
-                'Data': message,
+        Message={
+            'Subject': {
+                'Data': "Meta Robots: weekly status",
             },
-            'Text': {
-                'Data': message
-            }
-        },
-    }
-)
-
-    
+            'Body': {
+                'Html': {
+                    'Data': message,
+                },
+                'Text': {
+                    'Data': message
+                }
+            },
+        }
+    )
