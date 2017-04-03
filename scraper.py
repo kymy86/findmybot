@@ -54,7 +54,7 @@ def lambda_handler(event, context):
             page = requests.get('http://'+domain)
             tree = html.fromstring(page.content)
             h1 = tree.xpath('//title/text()')
-            title = h1[0]
+            title = h1[0] if len(h1) > 0 else ""
             status_code = page.status_code
             meta = tree.xpath('//meta[@name="robots"]/@content')
             if status_code == 200 and title != 'Index of /':
@@ -62,8 +62,6 @@ def lambda_handler(event, context):
                     domains_wn_meta.append(domain)
         except Exception as e:
             print(e)
-            message = "Error getting url meta"
-            raise Exception(message)
 
     if len(domains_wn_meta) == 0:
         print("No invalid domains")
