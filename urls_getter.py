@@ -9,6 +9,7 @@ import re
 import logging
 import json
 import requests
+from utils import get_env
 
 
 class UrlsGetter():
@@ -20,8 +21,8 @@ class UrlsGetter():
     def __init__(self):
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
         self._url = os.environ['WHM_URL']+"/json-api/listaccts?api.version=1&want=domain,suspended"
-        self._user = os.environ['WHM_USER']
-        self._auth = os.environ['WHM_TOKEN']
+        self._user = get_env(os.environ['WHM_USER'])
+        self._auth = get_env(os.environ['WHM_TOKEN'])
 
     def __connect(self):
         pattern = re.compile(r'(\r|\n)')
@@ -32,7 +33,7 @@ class UrlsGetter():
             )
         }
         try:
-            r = requests.get(self._url, headers=headers)
+            r = requests.get(self._url, headers=headers, allow_redirects=False, timeout=5)
             return r
         except requests.RequestException:
             logging.error("A connection error has occured")

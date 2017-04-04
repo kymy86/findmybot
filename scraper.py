@@ -8,11 +8,10 @@ import requests
 import boto3
 from urls_getter import UrlsGetter
 
-client = boto3.client('ses', region_name='us-east-1')
+client = boto3.client('ses', region_name=os.environ['SES_REGION_NAME'])
 ugetter = UrlsGetter()
 domains = ugetter.getDomainList()
 domains_wn_meta = []
-
 
 def build_message(valid_dm):
     """
@@ -51,7 +50,7 @@ def lambda_handler(event, context):
     """
     for domain in domains:
         try:
-            page = requests.get('http://'+domain)
+            page = requests.get('http://'+domain, allow_redirects=False, timeout=5)
             tree = html.fromstring(page.content)
             h1 = tree.xpath('//title/text()')
             title = h1[0] if len(h1) > 0 else ""
