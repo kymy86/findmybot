@@ -11,8 +11,8 @@ def get_env(variable):
     If is lambda environment, return the decrypting variable
     otherwise return it in plain text
     """
-    if os.environ['IS_LAMBDA'] == 1:
+    if os.environ['IS_LAMBDA'] == "1":
         return boto3.client('kms').decrypt(
-            CypherTextBlob=b64decode(variable))['Plaintext']
+            CiphertextBlob=b64decode(variable))['Plaintext']
     else:
         return variable

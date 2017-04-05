@@ -63,8 +63,9 @@ def lambda_handler(event, context):
             print(e)
 
     if len(domains_wn_meta) == 0:
-        print("No invalid domains")
-        sys.exit(1)
+        return {
+            'message': 'No invalid domains found'
+        }
 
     message = build_message(domains_wn_meta)
 
@@ -76,6 +77,10 @@ def lambda_handler(event, context):
         },
         Message=message
     )
+
+    return {
+        'message': "Ok, email sent!"
+    }
 
 if __name__ == '__main__':
     lambda_handler(event=None, context=None)
