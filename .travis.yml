@@ -4,13 +4,13 @@ python:
 - '2.7'
 cache: pip
 before_install:
-- apt-get install zip
+- sudo apt-get install zip
 - pip install awscli
 - mkdir deploy
 script:
 - cp *.py deploy/ && cp requirements.txt deploy/ && cd deploy/
 - pip install -r requirements.txt -t .
-- sudo zip -r "../findmybot-$TRAVIS_BUILD_NUMBER.zip" .
+- zip -r "../findmybot-$TRAVIS_BUILD_NUMBER.zip" .
 - cd ../
 after_success:
 - aws lambda update-function-code --function-name findmybot --zip-file fileb://"findmybot-$TRAVIS_BUILD_NUMBER.zip"
