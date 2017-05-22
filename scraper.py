@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import os
+import re
 from lxml import html
 import requests
 import boto3
@@ -54,9 +55,12 @@ def lambda_handler(event, context):
             h1 = tree.xpath('//title/text()')
             title = h1[0] if len(h1) > 0 else ""
             status_code = page.status_code
-            meta = tree.xpath('//meta[@name="robots"]/@content')
+            meta = tree.xpath('//meta[re:test(@name, "^robots$", "i")]/@content',
+                              namespaces={"re": "http://exslt.org/regular-expressions"})
             if status_code == 200 and title != 'Index of /':
                 if len(meta) == 0:
+                    domains_wn_meta.append(domain)
+                elif re.match('noindex', ",".join(meta), re.IGNORECASE) is None:
                     domains_wn_meta.append(domain)
         except Exception as e:
             print(e)
