@@ -50,7 +50,7 @@ def lambda_handler(event, context):
     """
     for domain in domains:
         try:
-            page = requests.get('http://'+domain, allow_redirects=False, timeout=5)
+            page = requests.get('http://'+domain, allow_redirects=False, timeout=20)
             tree = html.fromstring(page.content)
             h1 = tree.xpath('//title/text()')
             title = h1[0] if len(h1) > 0 else ""

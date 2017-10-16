@@ -33,7 +33,7 @@ class UrlsGetter():
             )
         }
         try:
-            r = requests.get(self._url, headers=headers, allow_redirects=False, timeout=5)
+            r = requests.get(self._url, headers=headers, allow_redirects=False, timeout=10)
             return r
         except requests.RequestException:
             logging.error("A connection error has occured")
