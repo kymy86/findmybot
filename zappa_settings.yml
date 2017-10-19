@@ -1,7 +1,7 @@
 ---
 common:
   runtime: python3.6
-  debug: true
+  debug: false
   keep_warm: false
   log_level: DEBUG
   apigateway_enabled: false
