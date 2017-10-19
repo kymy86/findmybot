@@ -2,21 +2,26 @@
 
 [![Build Status](https://travis-ci.org/kymy86/findmybot.svg?branch=master)](https://travis-ci.org/kymy86/findmybot)
 
-This Python script grabs a list of domains from WHM manager and it checks one by one to discover if they have correctly set the meta tag robots with noindex/nofollow values. In the end, it sends an email with [SES] with the list of domains discovered.
+This [Amazon Lambda] function grabs a list of domains from WHM manager and it checks one by one to discover if they have correctly set the meta tag robots with noindex/nofollow values. In the end, it sends an notification with AWS [SNS].
 
-This script is compatible with [Amazon Lambda] serverless application.
+The Lambda function is deployed by using the [Zappa] Framework.
+The default trigger for the function is a CloudWatch scheduled Event (every days from Mon to Fri at 0:00)
 
 [Amazon Lambda]: https://aws.amazon.com/lambda/
-[SES]: https://aws.amazon.com/ses/ 
+[SNS]: https://aws.amazon.com/sns/ 
 [remote source]: https://documentation.cpanel.net/display/SDK/Guide+to+WHM+API+1
+[Zappa]: https://www.zappa.io/
 
 ## Getting started
 
-1. Set up the following environment variables:
-    - WHM_URL: the WHM main url
-    - WHM_USER: the WHM username
-    - WHM_TOKEN: the WHM token to access the cpanel from [remote source]
-    - FROM_ADDR: the email sender email address
-    - TO_ADDR: the recipients email addresses
-    - SES_REGION_NAME: the region name of the SES service
-    - IS_LAMBDA: 1 if it's going to use with AWS Lambda, 0 otherwise.
+1. Set up the following AWS Lambda environment variables:
+    - WHM_URL: the WHM main url 
+    - WHM_USER: the WHM username (must be encrypted with the KMS key)
+    - WHM_TOKEN: the WHM token to access the CPanel from [remote source] (must be encrypted with the KMS key)
+    - TOPIC_ARN: the SNS topic where send the message with the list of "invalid" domains.
+
+2. Install the Zappa framework `pip install zappa`
+3. Optional: configure the Zappa framework from the **zappa_settings.yml** file
+4. Deploy the Lambda function with the command `zappa deploy run`
+
+**N.B.** If you want to test the function on your local machine, set-up a *SERVERTYPE* environment variable, so that the the KMS encryption is not applied.
