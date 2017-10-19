@@ -1,19 +1,14 @@
 language:
 - python
 python:
-- '2.7'
+- '3.6'
 cache: pip
 before_install:
-- sudo apt-get install zip
 - pip install awscli
-- mkdir deploy
+- pip install zappa
+- pip install -r requirements.txt
 script:
-- cp *.py deploy/ && cp requirements.txt deploy/ && cd deploy/
-- pip install -r requirements.txt -t .
-- zip -r "../findmybot-$TRAVIS_BUILD_NUMBER.zip" .
-- cd ../
-after_success:
-- aws lambda update-function-code --function-name findmybot --zip-file fileb://"findmybot-$TRAVIS_BUILD_NUMBER.zip"
+- zappa update run
 env:
   global:
   - secure: XXdP7EIT3PRfxoEAuKRA5+0dVp/wRmQO/sPTS7y2b/ofo3pGcV5sgnvsnHqzvOPuKYw9m/3ZS1K4gQKxggXRSVhC9u0hIp/VZINFmS5r9PS7HKd8zwwqYj4BoCa5IIpKlZ0ZIoNLlIX7R68Pos9wCvokX71iXIwsNxh++6LLMTjzvyPjUJ5iMriRmZ0BIHwC3ouqLxJ8/warIh+h8Qp3+EQqbIs+ooPqsKNoLs3DbB+ZlKhCL3n0aa1g4wO1GBzcCdB6GrL6V+vxIiuSyOPGqxyyPQmempPwwClB45U2G4YlnItxPPzglijAUsnFm/8bCBM5tiK89/L3016PlsAOd0HazngGJ5boDaaRk7PMvqXaDJrOCqmA7NH9zBwDBCBLQ+jSqrjWQi9Bg8Rewfb+7qeDcR+XCyQ+HGuznZG1lHNvoHuzPEiqtgB8o5PWNtm2eW+mXejZGigmBgW1PgG9k0yErOBF1bVKr3N/PvlF7h7i6xY0DBiUgfvZrMZAS7EzIL9vqgJstbh4k4A53+QZUGxAL8R28RfoqU1+rWPImjMqU7AKEXb0IOfvGGtmuFR4kVZX80TKuyQIC9ZGS5NOJ8ntNBW6eauN69xvV+jSfSPGF7Vo9WEqVatJyL+aTVpTmAKrYbqAdLSAedFBy1eAAY+isnos0ddDgN45hcghhsk=

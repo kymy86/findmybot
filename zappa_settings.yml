@@ -1,0 +1,31 @@
+---
+common:
+  runtime: python3.6
+  debug: true
+  keep_warm: false
+  log_level: DEBUG
+  apigateway_enabled: false
+  project_name: findmybot
+  lambda_description: Check website meta-robots
+  timeout_seconds: 300
+  memory_size: 128
+  use_precompiled_packages: true
+  exclude:
+  - .vscode
+  - env_bash
+  - env_example
+  - .travis.yml
+  - README.md
+  - LICENSE
+run:
+  extends: common
+  lambda_handler: findmybot.lambda_handler
+  extra_permissions:
+  - Effect: Allow
+    Action: 
+    - kms:Decrypt
+    - sns:*
+    Resource: "*"
+  events:
+  - function: findmybot.lambda_handler
+    expression: "cron(0 1 ? * MON-FRI *)"
