@@ -9,17 +9,15 @@ from url_getter import UrlsGetter
 from mcutils import build_message
 
 def is_the_original_invokation(event):
-    events = json.loads(event)
-    return False if events['domains'] is None else True
+    return False if 'domains' in event else True
 
 def lambda_handler(event, context):
     """
     Call the main function
     """
-    print("EVENT:")
     print(event)
     # check if it's the original invokation or not.
-    if not is_the_original_invokation(event):
+    if is_the_original_invokation(event):
         # original invocation. Go on as usual
         ugetter = UrlsGetter()
         domains = ugetter.get_domains_list()
@@ -27,16 +25,14 @@ def lambda_handler(event, context):
         sub = False
     else:
         # Sub invokation. Resume the info from the context
-        ctx = json.loads(event)
-        domains = json.loads(ctx['domains'])
-        domains_wn_meta = json.loads(ctx['domains_wn_meta'])
+        domains = event['domains']
+        domains_wn_meta = event['domains_wn_meta']
         sub = True
 
     for domain in domains:
         try:
             page = requests.get('http://'+domain, allow_redirects=False, timeout=20)
             if page.status_code == 200:
-                print("http://"+domain)
                 tree = html.fromstring(page.content)
                 h1 = tree.xpath('//title/text()')
                 title = h1[0] if len(h1) > 0 else ""
