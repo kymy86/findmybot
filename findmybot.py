@@ -9,6 +9,9 @@ from url_getter import UrlsGetter
 from mcutils import build_message
 
 def is_the_original_invokation(event):
+    """
+    Check if this is the original invokation or not.
+    """
     return False if 'domains' in event else True
 
 def lambda_handler(event, context):
@@ -73,6 +76,8 @@ def lambda_handler(event, context):
                                 Message=message,
                                 Subject="Meta Robots: weekly status")
             return response['MessageId']
+        else:
+            return "All the websites are configured correctly in the staging server"
 
 
 if __name__ == '__main__':
