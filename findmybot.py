@@ -3,18 +3,34 @@ import os
 import re
 from lxml import html
 import requests
+import json
 import boto3
 from url_getter import UrlsGetter
 from mcutils import build_message
 
+def is_the_original_invokation(event):
+    events = json.loads(event)
+    return False if events['domains'] is None else True
 
 def lambda_handler(event, context):
     """
-    Call main function
+    Call the main function
     """
-    ugetter = UrlsGetter()
-    domains = ugetter.get_domains_list()
-    domains_wn_meta = []
+    print("EVENT:")
+    print(event)
+    # check if it's the original invokation or not.
+    if not is_the_original_invokation(event):
+        # original invocation. Go on as usual
+        ugetter = UrlsGetter()
+        domains = ugetter.get_domains_list()
+        domains_wn_meta = []
+        sub = False
+    else:
+        # Sub invokation. Resume the info from the context
+        ctx = json.loads(event)
+        domains = json.loads(ctx['domains'])
+        domains_wn_meta = json.loads(ctx['domains_wn_meta'])
+        sub = True
 
     for domain in domains:
         try:
@@ -33,14 +49,34 @@ def lambda_handler(event, context):
                         domains_wn_meta.append(domain)
         except Exception as e:
             print(e)
+        domains.remove(domain)
 
-    if len(domains_wn_meta) != 0:
-        message = build_message(domains_wn_meta)
-        sns = boto3.client('sns')
-        response = sns.publish(TopicArn=os.environ['TOPIC_ARN'],
-                               Message=message,
-                               Subject="Meta Robots: weekly status")
-        return response['MessageId']
+        print(context.get_remaining_time_in_millis())
+        if context.get_remaining_time_in_millis() <= 40000:
+            client = boto3.client('lambda')
+            client.invoke(
+                FunctionName=context.function_name,
+                InvocationType='Event',
+                Payload=json.dumps({
+                    'domains':domains,
+                    'domains_wn_meta':domains_wn_meta
+                })
+            )
+            sub = True
+            break
+        else:
+            sub = False
+
+    if sub is True:
+        return 1
+    else:
+        if len(domains_wn_meta) != 0:
+            message = build_message(domains_wn_meta)
+            sns = boto3.client('sns')
+            response = sns.publish(TopicArn=os.environ['TOPIC_ARN'],
+                                Message=message,
+                                Subject="Meta Robots: weekly status")
+            return response['MessageId']
 
 
 if __name__ == '__main__':
